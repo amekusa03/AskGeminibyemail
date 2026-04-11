@@ -42,6 +42,17 @@ Gemini の応答をメールで返信
 
 ```:
 メイン処理中に例外が発生しました: Exception: You do not have permission to call Session.getActiveUser. Required permissions: https://www.googleapis.com/auth/userinfo.email. For more information, see https://developers.google.com/apps-script/guides/support/troubleshooting#authorization-is
-```:
+```
 
 エディタの「プロジェクトの設定」→「appsscript.json マニフェスト ファイルをエディタで表示する」をオンにして、以下の内容に編集して保存後、再度実行してください。
+
+## 📝 開発の背景や詳細 
+https://html-sigma-amber.vercel.app/app/image_for_net/image_for_net.html
+⭕動画(you tube)
+https://youtu.be/dmGGBLUwR_o
+
+Kids
+📝 せつめい 
+https://html-sigma-amber.vercel.app/app/ask_gemini_by_email/Build_Your_Email_AI.html
+⭕動画(you tube)
+https://youtu.be/pId5SnPjoOw
