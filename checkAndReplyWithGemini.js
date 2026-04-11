@@ -5,8 +5,9 @@
 function checkAndReplyWithGemini() {
   // セキュリティのため、APIキーはスクリプトプロパティから取得
   const scriptProperties = PropertiesService.getScriptProperties();
-  const API_KEY = scriptProperties.getProperty('GEMINI_API_KEY');
-  const MODEL = 'gemini-1.5-flash';
+  const rawKey = scriptProperties.getProperty('GEMINI_API_KEY');
+  const API_KEY = rawKey ? rawKey.trim() : null;
+  const MODEL = 'gemini-2.5-flash';
 
   if (!API_KEY) {
     console.error('エラー: スクリプトプロパティ "GEMINI_API_KEY" が設定されていません。');
@@ -14,6 +15,8 @@ function checkAndReplyWithGemini() {
   }
 
   try {
+    const SESSION_USER = Session.getActiveUser().getEmail();
+
     // 件名に "AskGemini" を含む未読スレッドを検索
     const threads = GmailApp.search('subject:AskGemini is:unread');
     
@@ -26,8 +29,14 @@ function checkAndReplyWithGemini() {
       // スレッド内の全メッセージから最新のものを取得
       const messages = thread.getMessages();
       const lastMessage = messages[messages.length - 1];
-      
-      // メール本文を抽出（署名や引用が含まれる場合は調整が必要）
+
+      // 送信者が自分でない場合はスキップ
+      if (lastMessage.getFrom().indexOf(SESSION_USER) === -1) {
+        console.log('送信者が自分ではないためスキップ: ' + lastMessage.getFrom());
+        return;
+      }
+
+      // メール本文を抽出
       const userPrompt = lastMessage.getPlainBody();
       console.log('処理開始: ' + thread.getFirstMessageSubject());
 
@@ -49,10 +58,10 @@ function checkAndReplyWithGemini() {
 }
 
 /**
- * Gemini API (v1beta) を呼び出して生成テキストを返す関数
+ * Gemini API (v1) を呼び出して生成テキストを返す関数
  */
 function callGeminiAPI(apiKey, model, prompt) {
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+  const url = `https://generativelanguage.googleapis.com/v1/models/${model}:generateContent?key=${apiKey}`;
 
   const payload = {
     contents: [{
@@ -71,7 +80,7 @@ function callGeminiAPI(apiKey, model, prompt) {
     const response = UrlFetchApp.fetch(url, options);
     const responseCode = response.getResponseCode();
     const responseText = response.getContentText();
-    
+
     // デバッグ用のステータスコード記録
     console.log('API Status Code: ' + responseCode);
 
@@ -95,4 +104,3 @@ function callGeminiAPI(apiKey, model, prompt) {
     return '通信中にエラーが発生しました。';
   }
 }
-
